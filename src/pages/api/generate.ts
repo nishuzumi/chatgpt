@@ -8,7 +8,7 @@ export const post: APIRoute = async (context) => {
   const messages = body.messages
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
-
+  console.log(messages)
   if (!messages) {
     return new Response('No input text')
   }

@@ -1,11 +1,16 @@
-import { createSignal, For, Show } from 'solid-js'
+import { Component, createSignal, For, Show } from 'solid-js'
 import MessageItem from './MessageItem'
 import IconClear from './icons/Clear'
 import type { ChatMessage } from '../types'
+import { createStoredSignal } from '../lib/createStoredSignal'
+import { activateSession } from '../store'
+
 
 export default () => {
   let inputRef: HTMLInputElement
-  const [messageList, setMessageList] = createSignal<ChatMessage[]>([])
+
+  const [messages, setMessages] = createStoredSignal<ChatMessage[]>(`session:${activateSession()}`,[]);
+  const [messageList, setMessageList] = createSignal(messages())
   const [currentAssistantMessage, setCurrentAssistantMessage] = createSignal('')
   const [loading, setLoading] = createSignal(false)
 
@@ -18,13 +23,15 @@ export default () => {
     // @ts-ignore
     if (window?.umami) umami.trackEvent('chat_generate')
     inputRef.value = ''
-    setMessageList([
+    let msg:ChatMessage[] = [
       ...messageList(),
       {
         role: 'user',
         content: inputValue,
       },
-    ])
+    ]
+    setMessageList(msg)
+    setMessages(msg)
 
     const response = await fetch('/api/generate', {
       method: 'POST',
@@ -76,7 +83,7 @@ export default () => {
   return (
     <div my-6>
       <For each={messageList()}>{(message) => <MessageItem role={message.role} message={message.content} />}</For>
-      { currentAssistantMessage() && <MessageItem role="assistant" message={currentAssistantMessage} /> }
+      {currentAssistantMessage() && <MessageItem role="assistant" message={currentAssistantMessage} />}
       <Show when={!loading()} fallback={() => <div class="h-12 my-4 flex items-center justify-center bg-slate bg-op-15 text-slate rounded-sm">AI is thinking...</div>}>
         <div class="my-4 flex items-center gap-2">
           <input

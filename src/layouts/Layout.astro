@@ -26,7 +26,15 @@ const { title } = Astro.props;
 		background-color: #171921;
 		color: #ffffff;
 	}
-	main {
+	main{
+		display: flex;
+		min-height: 100vh;
+	}
+	sidebar{
+		width: 18rem;
+	}
+	.content {
+		flex: 1;
 		max-width: 70ch;
 		margin: 0 auto;
 		padding: 6rem 2rem 4rem;
